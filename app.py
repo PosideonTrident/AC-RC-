@@ -5,15 +5,17 @@ Simple web interface to control Hisense AC units
 Access from any device on your network
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 import socket
 import requests
 import json
 import threading
 import time
 from datetime import datetime
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='templates', static_url_path='')
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 class HisenseACController:
     def __init__(self):
@@ -160,6 +162,14 @@ controller = HisenseACController()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('templates', 'manifest.json', mimetype='application/manifest+json')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory('templates', 'sw.js', mimetype='application/javascript')
 
 @app.route('/api/discover', methods=['POST'])
 def discover():
