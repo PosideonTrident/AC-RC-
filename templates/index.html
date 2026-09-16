@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hisense AC Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .devices-section {
+            display: none;
+        }
+
+        .devices-section.show {
+            display: block;
+        }
+
+        .device-list {
+            margin-bottom: 20px;
+        }
+
+        .device-item {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-item:hover {
+            background: #efefef;
+            border-color: #667eea;
+        }
+
+        .device-item.selected {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .device-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .device-ip {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .control-section {
+            display: none;
+        }
+
+        .control-section.show {
+            display: block;
+        }
+
+        .status-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .temp-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-info {
+            font-size: 14px;
+            opacity: 0.9;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .status-value {
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .power-control {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-on {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-on:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-off {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-off:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .btn-discover {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-discover:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: #9E9E9E;
+            color: white;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .temp-value {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .mode-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .fan-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .fan-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .fan-btn:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .fan-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .discovering {
+            text-align: center;
+            color: #667eea;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .temp-display {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>❄️ Hisense AC</h1>
+                <p>Remote Control</p>
+            </div>
+
+            <!-- Discovery Section -->
+            <div class="devices-section" id="devicesSection">
+                <button class="btn btn-discover" onclick="startDiscovery()">
+                    🔍 Scan for AC
+                </button>
+                <div id="deviceList" class="device-list"></div>
+            </div>
+
+            <!-- Control Section -->
+            <div class="control-section" id="controlSection">
+                <button class="btn btn-back" onclick="goBack()">← Back to Devices</button>
+
+                <div id="errorMsg" class="error" style="display: none;"></div>
+                <div id="successMsg" class="success" style="display: none;"></div>
+
+                <div class="status-display">
+                    <div class="temp-display" id="tempDisplay">--°C</div>
+                    <div class="status-info">
+                        <div class="status-item">
+                            <div class="status-label">Power</div>
+                            <div class="status-value" id="powerStatus">OFF</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Humidity</div>
+                            <div class="status-value" id="humidityStatus">--%</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Mode</div>
+                            <div class="status-value" id="modeStatus">--</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Fan</div>
+                            <div class="status-value" id="fanStatus">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Power Control -->
+                <div class="power-control">
+                    <button class="btn btn-on" onclick="setPower(true)">🔋 ON</button>
+                    <button class="btn btn-off" onclick="setPower(false)">🔌 OFF</button>
+                </div>
+
+                <!-- Temperature Control -->
+                <div class="control-group">
+                    <label class="control-label">Temperature</label>
+                    <input type="range" class="slider" id="tempSlider" min="16" max="32" value="24" oninput="setTemperature(this.value)">
+                    <div class="temp-value">
+                        <span id="tempValue">24</span>
+                        <span>°C</span>
+                    </div>
+                </div>
+
+                <!-- Mode Control -->
+                <div class="control-group">
+                    <label class="control-label">Mode</label>
+                    <div class="mode-buttons">
+                        <button class="mode-btn" onclick="setMode('cool')">❄️ Cool</button>
+                        <button class="mode-btn" onclick="setMode('heat')">🔥 Heat</button>
+                        <button class="mode-btn" onclick="setMode('dry')">💧 Dry</button>
+                        <button class="mode-btn" onclick="setMode('fan')">💨 Fan</button>
+                    </div>
+                </div>
+
+                <!-- Fan Speed Control -->
+                <div class="control-group">
+                    <label class="control-label">Fan Speed</label>
+                    <div class="fan-buttons">
+                        <button class="fan-btn" onclick="setFan('auto')">Auto</button>
+                        <button class="fan-btn" onclick="setFan('low')">Low</button>
+                        <button class="fan-btn" onclick="setFan('medium')">Med</button>
+                        <button class="fan-btn" onclick="setFan('high')">High</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDevice = null;
+
+        async function startDiscovery() {
+            document.getElementById('devicesSection').classList.remove('show');
+
+            const deviceList = document.getElementById('deviceList');
+            deviceList.innerHTML = '<div class="discovering"><div class="spinner"></div><p>Scanning network...</p></div>';
+            document.getElementById('devicesSection').classList.add('show');
+
+            try {
+                await fetch('/api/discover', { method: 'POST' });
+
+                // Wait for discovery to complete
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                // Get devices
+                const response = await fetch('/api/devices');
+                const data = await response.json();
+
+                if (data.devices.length === 0) {
+                    deviceList.innerHTML = `
+                        <div class="error">
+                            ⚠️ No Hisense AC found!<br><br>
+                            Make sure your AC is:<br>
+                            • Connected to the same WiFi<br>
+                            • Powered on<br>
+                            • Has WiFi enabled<br><br>
+                            <small>If your AC doesn't have WiFi, you'll need a WiFi IR blaster like Broadlink RM4</small>
+                        </div>
+                        <button class="btn btn-discover" onclick="startDiscovery()">🔍 Scan Again</button>
+                    `;
+                } else {
+                    deviceList.innerHTML = data.devices.map(device => `
+                        <div class="device-item" onclick="selectDevice('${device.ip}', this)">
+                            <div class="device-name">${device.name}</div>
+                            <div class="device-ip">${device.ip}:${device.port}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                deviceList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function selectDevice(ip, element) {
+            try {
+                const response = await fetch('/api/select', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip: ip })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    selectedDevice = ip;
+                    document.getElementById('devicesSection').classList.remove('show');
+                    document.getElementById('controlSection').classList.add('show');
+                    updateStatus(data.status);
+                    setInterval(updateStatus, 3000);
+                }
+            } catch (error) {
+                showError('Failed to select device: ' + error.message);
+            }
+        }
+
+        function goBack() {
+            document.getElementById('controlSection').classList.remove('show');
+            document.getElementById('devicesSection').classList.add('show');
+        }
+
+        async function setPower(power) {
+            try {
+                const response = await fetch('/api/power', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ power: power })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus(data.status);
+                    showSuccess(power ? 'AC turned ON' : 'AC turned OFF');
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Failed to set power: ' + error.message);
+            }
+        }
+
+        async function setTemperature(value) {
+            document.getElementById('tempValue').textContent = value;
+            document.getElementById('tempSlider').value = value;
+
+            try {
+                const response = await fetch('/api/temperature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temperature: parseInt(value) })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus(data.status);
+                }
+            } catch (error) {
+                showError('Failed to set temperature');
+            }
+        }
+
+        async function setMode(mode) {
+            try {
+                const response = await fetch('/api/mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: mode })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus(data.status);
+                    updateModeButtons(mode);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Failed to set mode');
+            }
+        }
+
+        async function setFan(speed) {
+            try {
+                const response = await fetch('/api/fan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ speed: speed })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus(data.status);
+                    updateFanButtons(speed);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Failed to set fan speed');
+            }
+        }
+
+        async function updateStatus(status = null) {
+            try {
+                if (!status) {
+                    const response = await fetch('/api/status');
+                    const data = await response.json();
+                    status = data;
+                }
+
+                document.getElementById('tempDisplay').textContent = status.temperature + '°C';
+                document.getElementById('tempSlider').value = status.target_temp;
+                document.getElementById('tempValue').textContent = status.target_temp;
+                document.getElementById('powerStatus').textContent = status.power ? 'ON' : 'OFF';
+                document.getElementById('humidityStatus').textContent = status.humidity + '%';
+                document.getElementById('modeStatus').textContent = status.mode.toUpperCase();
+                document.getElementById('fanStatus').textContent = status.fan_speed.toUpperCase();
+
+                updateModeButtons(status.mode);
+                updateFanButtons(status.fan_speed);
+            } catch (error) {
+                console.error('Failed to update status:', error);
+            }
+        }
+
+        function updateModeButtons(activeMode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                const mode = btn.textContent.toLowerCase().includes('cool') ? 'cool' :
+                            btn.textContent.toLowerCase().includes('heat') ? 'heat' :
+                            btn.textContent.toLowerCase().includes('dry') ? 'dry' : 'fan';
+                btn.classList.toggle('active', mode === activeMode);
+            });
+        }
+
+        function updateFanButtons(activeSpeed) {
+            const speedMap = { 'auto': 0, 'low': 1, 'medium': 2, 'high': 3 };
+            document.querySelectorAll('.fan-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === speedMap[activeSpeed]);
+            });
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = '❌ ' + message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMsg');
+            el.textContent = '✅ ' + message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 2000);
+        }
+
+        // Start with device discovery
+        startDiscovery();
+    </script>
+</body>
+</html>
